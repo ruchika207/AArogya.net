@@ -1,0 +1,79 @@
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+
+// User schema and model (similar to backend/models/User.js)
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true, maxLength: 50 },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  password: { type: String, required: true },
+  avatar: { type: String, default: '' },
+  status: {
+    type: String,
+    enum: ['online', 'offline', 'away', 'busy'],
+    default: 'offline',
+  },
+  lastSeen: { type: Date, default: Date.now },
+  phone: { type: String, default: '' },
+  isTyping: { type: Boolean, default: false },
+}, {
+  timestamps: true,
+});
+
+// Password hashing middleware
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// No need for comparePassword here since it's demo
+
+const User = mongoose.model('User', userSchema);
+
+async function demo() {
+  try {
+    await mongoose.connect('mongodb://localhost:27017/messagingapp', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connected to MongoDB');
+
+    const user = new User({
+      name: 'Alice Johnson',
+      email: 'alice@example.com',
+      password: 'password123',
+      avatar: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/c2d74ced-b24c-4aaf-8100-69edfa79a4ed.png',
+      phone: '555-1234',
+    });
+
+    const savedUser = await user.save();
+    console.log('User saved successfully:');
+    console.log({
+      _id: savedUser._id,
+      name: savedUser.name,
+      email: savedUser.email,
+      password: savedUser.password,
+      avatar: savedUser.avatar,
+      status: savedUser.status,
+      lastSeen: savedUser.lastSeen,
+      phone: savedUser.phone,
+      isTyping: savedUser.isTyping,
+      createdAt: savedUser.createdAt,
+      updatedAt: savedUser.updatedAt,
+      __v: savedUser.__v,
+    });
+  } catch (err) {
+    console.error('Error:', err);
+  } finally {
+    await mongoose.disconnect();
+    console.log('Disconnected from MongoDB');
+  }
+}
+
+demo();
+
