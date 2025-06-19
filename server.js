@@ -45,3 +45,8 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
+// Add to server.js after routes
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
