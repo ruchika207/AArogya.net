@@ -1,0 +1,10 @@
+MONGO_URI=mongodb://localhost:27017/healthcare
+JWT_SECRET=your_jwt_secret_key
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your_email@example.com
+SMTP_PASS=your_email_password
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+OPENAI_API_KEY=your_openai_api_key
+PORT=5000
